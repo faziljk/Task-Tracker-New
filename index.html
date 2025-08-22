@@ -10,7 +10,7 @@
         h2 { color: #333; }
         form { background: #fff; padding: 15px; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.1); margin-bottom: 20px; display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 10px; }
         label { display: block; margin: 5px 0 3px; font-weight: bold; font-size: 14px; }
-        select, input[type="date"], input[type="text"], textarea, input[type="password"], input[type="email"] { width: 100%; padding: 6px; margin-bottom: 5px; border: 1px solid #ddd; border-radius: 4px; box-sizing: border-box; font-size: 14px; }
+        select, input[type="date"], input[type="text"], textarea, input[type="email"], input[type="password"] { width: 100%; padding: 6px; margin-bottom: 5px; border: 1px solid #ddd; border-radius: 4px; box-sizing: border-box; font-size: 14px; }
         button { color: white; padding: 8px 16px; border: none; border-radius: 4px; cursor: pointer; font-size: 14px; }
         button:hover { opacity: 0.9; }
         table { width: 100%; border-collapse: collapse; margin-top: 20px; background: #fff; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
@@ -46,7 +46,7 @@
     <!-- Firebase SDK -->
     <script src="https://www.gstatic.com/firebasejs/10.13.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.13.1/firebase-database.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.13.1/firebase-auth.js"></script>  <!-- Added for Auth -->
+    <script src="https://www.gstatic.com/firebasejs/10.13.1/firebase-auth.js"></script>
 </head>
 <body>
     <!-- Login Form -->
@@ -55,10 +55,10 @@
         <input type="email" id="email" placeholder="Email">
         <input type="password" id="password" placeholder="Password">
         <button onclick="login()">Login</button>
-        <button onclick="logout()">Logout</button>  <!-- For testing -->
+        <button onclick="logout()">Logout</button>
     </div>
 
-    <!-- App Content (hidden until login) -->
+    <!-- App Content -->
     <div id="appContent" style="display: none;">
         <h1>Technical Job Tracker</h1>
 
@@ -223,45 +223,6 @@
             };
             firebase.initializeApp(firebaseConfig);
             const db = firebase.database();
-            const auth = firebase.auth();  // For role-based access
-
-            let role = localStorage.getItem('role') || 'viewer';  // Default to viewer
-
-            // Login function
-            function login() {
-                const email = document.getElementById('email').value;
-                const password = document.getElementById('password').value;
-                auth.signInWithEmailAndPassword(email, password).then(user => {
-                    // Set role based on email (customize as needed)
-                    if (email === 'fazil.j@yamari.co.in') role = 'admin';
-                    else if (email.includes('tech')) role = 'tech';
-                    else role = 'viewer';
-                    localStorage.setItem('role', role);
-                    document.getElementById('loginForm').style.display = 'none';
-                    document.getElementById('appContent').style.display = 'block';
-                    adjustUIForRole();
-                    loadData();
-                }).catch(err => alert(err.message));
-            }
-
-            // Logout
-            function logout() {
-                auth.signOut();
-                role = 'viewer';
-                localStorage.removeItem('role');
-                location.reload();
-            }
-
-            // Adjust UI for role
-            function adjustUIForRole() {
-                if (role === 'viewer') {
-                    document.getElementById('taskForm').style.display = 'none';  // Hide add form
-                    document.querySelectorAll('.actions button').forEach(btn => btn.disabled = true);  // Disable actions
-                    document.querySelectorAll('.assign-select').forEach(sel => sel.disabled = true);  // Disable assigns
-                } else if (role === 'tech') {
-                    document.querySelectorAll('.btn-move').forEach(btn => btn.disabled = true);  // Disable Move for tech
-                } // Admin has full access
-            }
 
             let activeTasks = [];
             let jobHistory = [];
@@ -366,7 +327,7 @@
                         const isCommented = task.status === 'Commented';
 
                         const assignedCell = task.assignedTo !== 'Unassigned' ? task.assignedTo : `
-                            <select class="assign-select" onchange="assignMember('${task.requestId}', this.value)" ${role === 'viewer' ? 'disabled' : ''}>
+                            <select class="assign-select" onchange="assignMember('${task.requestId}', this.value)">
                                 <option value="Unassigned" selected>Unassigned</option>
                                 <option>Santhosh</option>
                                 <option>Mani</option>
@@ -390,13 +351,13 @@
                             <td class="${statusClass}">${task.status}</td>
                             <td class="${statusClass}">${task.notes}</td>
                             <td class="actions">
-                                <button class="btn-in-progress" onclick="updateStatus('${task.requestId}', 'In Progress')" ${!(isPending || isCommented) || role === 'viewer' ? 'disabled' : ''}>In Progress</button>
-                                <button class="btn-hold" onclick="updateStatus('${task.requestId}', 'Hold')" ${!isInProgress || role === 'viewer' ? 'disabled' : ''}>Hold</button>
-                                <button class="btn-checking" onclick="updateStatus('${task.requestId}', 'Checking')" ${!isInProgress || role === 'viewer' ? 'disabled' : ''}>Checking</button>
-                                <button class="btn-commented" onclick="updateStatus('${task.requestId}', 'Commented')" ${!isChecking || role === 'viewer' ? 'disabled' : ''}>Commented</button>
-                                <button class="btn-completed" onclick="updateStatus('${task.requestId}', 'Completed')" ${!isChecking || role === 'viewer' ? 'disabled' : ''}>Completed</button>
-                                <button class="btn-edit-note" onclick="editNotes('${task.requestId}')" ${!isHold || role === 'viewer' ? 'disabled' : ''}>Edit Note</button>
-                                <button class="btn-move" onclick="moveToHistory('${task.requestId}')" ${!isCompleted || role !== 'admin' ? 'disabled' : ''}>Move</button>
+                                <button class="btn-in-progress" onclick="updateStatus('${task.requestId}', 'In Progress')" ${!(isPending || isCommented) ? 'disabled' : ''}>In Progress</button>
+                                <button class="btn-hold" onclick="updateStatus('${task.requestId}', 'Hold')" ${!isInProgress ? 'disabled' : ''}>Hold</button>
+                                <button class="btn-checking" onclick="updateStatus('${task.requestId}', 'Checking')" ${!isInProgress ? 'disabled' : ''}>Checking</button>
+                                <button class="btn-commented" onclick="updateStatus('${task.requestId}', 'Commented')" ${!isChecking ? 'disabled' : ''}>Commented</button>
+                                <button class="btn-completed" onclick="updateStatus('${task.requestId}', 'Completed')" ${!isChecking ? 'disabled' : ''}>Completed</button>
+                                <button class="btn-edit-note" onclick="editNotes('${task.requestId}')" ${!isHold ? 'disabled' : ''}>Edit Note</button>
+                                <button class="btn-move" onclick="moveToHistory('${task.requestId}')" ${!isCompleted ? 'disabled' : ''}>Move</button>
                             </td>
                         `;
                         activeTbody.appendChild(row);
@@ -428,7 +389,7 @@
             // Assign member
             function assignMember(requestId, newAssignee) {
                 const task = activeTasks.find(t => t.requestId === requestId);
-                if (task && newAssignee !== 'Unassigned' && role !== 'viewer') {
+                if (task && newAssignee !== 'Unassigned') {
                     task.assignedTo = newAssignee;
                     saveData();
                     renderTables();
@@ -437,7 +398,6 @@
 
             // Add new task
             document.getElementById('taskForm').addEventListener('submit', (e) => {
-                if (role === 'viewer') return;
                 e.preventDefault();
                 const requestId = document.getElementById('requestId').value.trim();
                 if (activeTasks.some(task => task.requestId === requestId)) {
@@ -464,7 +424,6 @@
 
             // Update status
             function updateStatus(requestId, newStatus) {
-                if (role === 'viewer') return;
                 const task = activeTasks.find(t => t.requestId === requestId);
                 if (task) {
                     if (newStatus === 'Hold' && !task.notes) {
@@ -484,7 +443,6 @@
 
             // Edit notes
             function editNotes(requestId) {
-                if (role === 'viewer') return;
                 const task = activeTasks.find(t => t.requestId === requestId);
                 if (task) {
                     const newNotes = prompt('Edit Note:', task.notes);
@@ -502,7 +460,6 @@
 
             // Move to history
             function moveToHistory(requestId) {
-                if (role !== 'admin') return;
                 const taskIndex = activeTasks.findIndex(t => t.requestId === requestId);
                 if (taskIndex !== -1) {
                     const movedTask = { ...activeTasks[taskIndex], movedDate: new Date().toISOString().split('T')[0] };
@@ -535,17 +492,8 @@
             document.getElementById('filterAssignee').addEventListener('change', renderTables);
             document.getElementById('filterPriority').addEventListener('change', renderTables);
 
-            auth.onAuthStateChanged(user => {
-                if (user) {
-                    document.getElementById('loginForm').style.display = 'none';
-                    document.getElementById('appContent').style.display = 'block';
-                    loadData();
-                    adjustUIForRole();  // Call after load
-                } else {
-                    document.getElementById('loginForm').style.display = 'block';
-                    document.getElementById('appContent').style.display = 'none';
-                }
-            });
+            // Initial load
+            loadData();
         </script>
 </body>
 </html>
