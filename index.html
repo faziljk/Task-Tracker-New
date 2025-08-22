@@ -233,7 +233,7 @@
                 const password = document.getElementById('password').value;
                 auth.signInWithEmailAndPassword(email, password).then(user => {
                     // Set role based on email (customize as needed)
-                    if (email === 'admin@email.com') role = 'admin';
+                    if (email === 'fazil.j@yamari.co.in') role = 'admin';
                     else if (email.includes('tech')) role = 'tech';
                     else role = 'viewer';
                     localStorage.setItem('role', role);
