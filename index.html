@@ -42,9 +42,9 @@
         .days-taken-red { background-color: #f44336; color: #fff; } /* Red */
         .days-taken-dark-red { background-color: #8b0000; color: #fff; } /* Dark Red */
     </style>
-	<!-- Firebase SDK -->
-    <script src="https://www.gstatic.com/firebasejs/12.1.0/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/12.1.0/firebase-database.js"></script>
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/10.13.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.13.1/firebase-database.js"></script>
 </head>
 <body>
     <h1>Technical Job Tracker</h1>
@@ -198,25 +198,24 @@
     </table>
 
     <script>
-		// Firebase Initialization
-		const firebaseConfig = {
-			apiKey: "AIzaSyBugCDY1eeDAx9BbGpoWoA67YDtQ-43zyk",
-			authDomain: "tasktrackernew-e3917.firebaseapp.com",
-			databaseURL: "https://tasktrackernew-e3917-default-rtdb.asia-southeast1.firebasedatabase.app",
-			projectId: "tasktrackernew-e3917",
-			storageBucket: "tasktrackernew-e3917.firebasestorage.app",
-			messagingSenderId: "611648615555",
-			appId: "1:611648615555:web:49a676b7b160414aa157b6"
-		};
-		firebase.initializeApp(firebaseConfig);
+        // Firebase Initialization
+        const firebaseConfig = {
+            apiKey: "AIzaSyCO8ty6Bw22k1JQvwvmTOOq95elh_QdFO0",
+            authDomain: "tasktrackerapp-ee8a3.firebaseapp.com",
+            databaseURL: "https://tasktrackerapp-ee8a3-default-rtdb.firebaseio.com",
+            projectId: "tasktrackerapp-ee8a3",
+            storageBucket: "tasktrackerapp-ee8a3.appspot.com",
+            messagingSenderId: "766574923392",
+            appId: "1:766574923392:web:018279e50bc949d5996065"
+        };
+        firebase.initializeApp(firebaseConfig);
         const db = firebase.database();
-	
+
         let activeTasks = [];
         let jobHistory = [];
         const today = new Date().toISOString().split('T')[0];
         const lastDateKey = 'lastSavedDate';
         const lastSavedDate = localStorage.getItem(lastDateKey);
-
         if (lastSavedDate && lastSavedDate !== today && jobHistory.length > 0) {
             downloadHistoryAsCSV();
             db.ref('jobHistory').set([]);
@@ -232,10 +231,10 @@
             db.ref('jobHistory').on('value', (snapshot) => {
                 jobHistory = snapshot.val() || [];
                 renderTables();
-			});
+            });
         }
 
-        // Save data to firebase
+        // Save data to Firebase
         function saveData() {
             db.ref('activeTasks').set(activeTasks);
             db.ref('jobHistory').set(jobHistory);
